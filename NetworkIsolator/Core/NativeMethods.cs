@@ -4,7 +4,7 @@ using System.Text;
 namespace NetworkIsolator.Core;
 
 /// <summary>
-/// Native Win32 calls. Nothing third-party: kernel32 / advapi32 / userenv / user32 only.
+/// Native Win32 calls. Nothing third-party: kernel32 / advapi32 / userenv / user32 / shell32 only.
 /// (No AppContainer imports: blocking goes through the firewall.)
 /// </summary>
 internal static class NativeMethods
@@ -159,6 +159,15 @@ internal static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool ChangeWindowMessageFilterEx(
         IntPtr hWnd, uint message, uint action, IntPtr changeFilterStruct);
+
+    [DllImport("shell32.dll")]
+    public static extern void DragAcceptFiles(IntPtr hWnd, bool accept);
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    public static extern uint DragQueryFileW(IntPtr hDrop, uint fileIndex, StringBuilder? fileName, uint size);
+
+    [DllImport("shell32.dll")]
+    public static extern void DragFinish(IntPtr hDrop);
 
     /// <summary>Full path of a PID's exe, or null (process gone / access denied).</summary>
     public static string? TryGetProcessImagePath(int pid)

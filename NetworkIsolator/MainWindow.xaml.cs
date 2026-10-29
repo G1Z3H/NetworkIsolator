@@ -43,14 +43,7 @@ public partial class MainWindow : Window
     {
         base.OnSourceInitialized(e);
 
-        // Elevated window: Windows (UIPI) blocks drag and drop from Explorer by default
-        // (non-elevated). The 3 messages used by a file drop are allowed explicitly.
-        if (ElevationHelper.IsElevated())
-        {
-            IntPtr hwnd = new WindowInteropHelper(this).Handle;
-            foreach (uint message in new uint[] { 0x0233 /* WM_DROPFILES */, 0x004A /* WM_COPYDATA */, 0x0049 /* WM_COPYGLOBALDATA */ })
-                NativeMethods.ChangeWindowMessageFilterEx(hwnd, message, 1 /* MSGFLT_ALLOW */, IntPtr.Zero);
-        }
+        ShellFileDrop.Enable(this, OnFilesDropped);
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -168,35 +161,17 @@ public partial class MainWindow : Window
         }
     }
 
-    private static string? FirstExe(DragEventArgs e)
+    private void OnFilesDropped(string[] files)
     {
-        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return null;
-        return (e.Data.GetData(DataFormats.FileDrop) as string[])?
-            .FirstOrDefault(f => f.EndsWith(".exe", StringComparison.OrdinalIgnoreCase));
-    }
+        string? exe = files.FirstOrDefault(f => f.EndsWith(".exe", StringComparison.OrdinalIgnoreCase));
+        if (exe is null)
+        {
+            SetStatus(Loc.T("Status_DropExe"), false);
+            return;
+        }
 
-    private void Window_DragOver(object sender, DragEventArgs e)
-    {
-        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return; // leave text drops to the text boxes
-
-        string? exe = FirstExe(e);
-        e.Effects = exe is not null ? DragDropEffects.Copy : DragDropEffects.None;
-        DropZone.BorderBrush = (Brush)FindResource(exe is not null ? "AccentBlue" : "BgSurface0");
-        e.Handled = true;
-    }
-
-    private void Window_DragLeave(object sender, DragEventArgs e) =>
-        DropZone.BorderBrush = (Brush)FindResource("BgSurface0");
-
-    private void Window_Drop(object sender, DragEventArgs e)
-    {
-        DropZone.BorderBrush = (Brush)FindResource("BgSurface0");
-        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
-        e.Handled = true;
-
-        string? exe = FirstExe(e);
-        if (exe is not null) SetSelectedExe(exe);
-        else SetStatus(Loc.T("Status_DropExe"), false);
+        SetSelectedExe(exe);
+        RbNavAdd.IsChecked = true;
     }
 
     private void DropZone_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => BrowseForExe();

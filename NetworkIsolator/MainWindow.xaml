@@ -8,10 +8,6 @@
         Background="{StaticResource BgBase}"
         WindowStartupLocation="CenterScreen"
         FontFamily="{StaticResource UiFont}"
-        AllowDrop="True"
-        PreviewDrop="Window_Drop"
-        PreviewDragOver="Window_DragOver"
-        PreviewDragLeave="Window_DragLeave"
         Closing="Window_Closing">
 
     <Grid>
@@ -272,12 +268,12 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{loc:Tr Name_Label}" Style="{StaticResource CaptionText}" Margin="0,0,0,4"/>
-                                <TextBox x:Name="TxtProfileName" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
+                                <TextBox x:Name="TxtProfileName" AllowDrop="False" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
                                          ToolTip="{loc:Tr Name_Tip}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{loc:Tr Args_Label}" Style="{StaticResource CaptionText}" Margin="0,0,0,4"/>
-                                <TextBox x:Name="TxtArgs" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
+                                <TextBox x:Name="TxtArgs" AllowDrop="False" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
                                          ToolTip="{loc:Tr Args_Tip}"/>
                             </StackPanel>
                         </Grid>
