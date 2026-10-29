@@ -1,0 +1,532 @@
+<Window x:Class="NetworkIsolator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:NetworkIsolator.Localization"
+        Title="NetworkIsolator"
+        Height="760" Width="860"
+        MinHeight="600" MinWidth="720"
+        Background="{StaticResource BgBase}"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="{StaticResource UiFont}"
+        AllowDrop="True"
+        PreviewDrop="Window_Drop"
+        PreviewDragOver="Window_DragOver"
+        PreviewDragLeave="Window_DragLeave"
+        Closing="Window_Closing">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Header -->
+            <RowDefinition Height="Auto"/>  <!-- Navigation -->
+            <RowDefinition Height="*"/>     <!-- Panels -->
+            <RowDefinition Height="Auto"/>  <!-- Status bar -->
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource BgCrust}" Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Border Width="32" Height="32" CornerRadius="8"
+                            Background="{StaticResource AccentBlue}" Margin="0,0,12,0">
+                        <TextBlock Text="⬡" FontSize="18"
+                                   Foreground="{StaticResource BgCrust}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="NetworkIsolator" FontSize="16" FontWeight="Bold"
+                                   Foreground="{StaticResource FgPrimary}"/>
+                        <TextBlock Text="{loc:Tr Header_Subtitle}"
+                                   FontSize="11" Foreground="{StaticResource FgMuted}" Margin="0,1,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <RadioButton x:Name="RbLangFr" GroupName="Lang" Content="FR" Style="{StaticResource ChipRadio}"
+                                 Checked="Lang_Checked"/>
+                    <RadioButton x:Name="RbLangEn" GroupName="Lang" Content="EN" Style="{StaticResource ChipRadio}"
+                                 Margin="0,0,12,0" Checked="Lang_Checked"/>
+                    <Border x:Name="BadgePrivileges"
+                            Background="{StaticResource BgSurface0}"
+                            CornerRadius="12" Padding="10,4" VerticalAlignment="Center"
+                            Cursor="Hand" MouseLeftButtonUp="BadgePrivileges_Click">
+                        <TextBlock x:Name="TxtPrivilege" Text="●" FontSize="10"
+                                   Foreground="{StaticResource AccentYellow}"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Navigation -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="24,16,24,0">
+            <RadioButton x:Name="RbNavApps" GroupName="Nav" Tag="apps" Content="{loc:Tr Nav_Apps}"
+                         Style="{StaticResource ChipRadio}" IsChecked="True" Checked="Nav_Checked"/>
+            <RadioButton x:Name="RbNavAdd" GroupName="Nav" Tag="add" Content="{loc:Tr Nav_Add}"
+                         Style="{StaticResource ChipRadio}" Checked="Nav_Checked"/>
+            <RadioButton x:Name="RbNavRunning" GroupName="Nav" Tag="running" Content="{loc:Tr Nav_Running}"
+                         Style="{StaticResource ChipRadio}" Checked="Nav_Checked"/>
+            <RadioButton x:Name="RbNavLog" GroupName="Nav" Tag="log" Content="{loc:Tr Nav_Log}"
+                         Style="{StaticResource ChipRadio}" Checked="Nav_Checked"/>
+            <RadioButton x:Name="RbNavHelp" GroupName="Nav" Tag="help" Content="{loc:Tr Nav_Help}"
+                         Style="{StaticResource ChipRadio}" Checked="Nav_Checked"/>
+        </StackPanel>
+
+        <!-- Panels -->
+        <Grid Grid.Row="2" Margin="24,10,24,0">
+
+            <!-- My applications -->
+            <Border x:Name="PanelApps" Background="{StaticResource BgMantle}" CornerRadius="12" Padding="16">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="4,0,4,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{loc:Tr Apps_Title}" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource FgMuted}"/>
+                            <TextBlock x:Name="TxtAppCount" Text="0" FontSize="10"
+                                       Foreground="{StaticResource FgMuted}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="{loc:Tr Apps_Refresh}" Style="{StaticResource SecondaryButton}"
+                                    FontSize="11" Padding="10,4"
+                                    ToolTip="{loc:Tr Apps_Refresh_Tip}"
+                                    Click="BtnRefresh_Click"/>
+                            <Button Content="{loc:Tr Apps_Import}" Style="{StaticResource SecondaryButton}"
+                                    FontSize="11" Padding="10,4" Margin="6,0,0,0" Click="BtnImport_Click"/>
+                            <Button Content="{loc:Tr Apps_Export}" Style="{StaticResource SecondaryButton}"
+                                    FontSize="11" Padding="10,4" Margin="6,0,0,0" Click="BtnExport_Click"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel x:Name="PanelEmptyApps" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,30">
+                        <TextBlock Text="{loc:Tr Apps_Empty_Title}"
+                                   FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource FgPrimary}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource CaptionText}" TextAlignment="Center" MaxWidth="460" Margin="0,8,0,14"
+                                   Text="{loc:Tr Apps_Empty_Text}"/>
+                        <Button Content="{loc:Tr Nav_Add}" Style="{StaticResource PrimaryButton}"
+                                HorizontalAlignment="Center" Click="BtnGoAdd_Click"/>
+                    </StackPanel>
+
+                    <ListBox x:Name="LstApps" Style="{StaticResource CardListBox}" Visibility="Collapsed"
+                             MouseDoubleClick="LstApps_MouseDoubleClick">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="8" Padding="12,10">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{StaticResource BgSurface0}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource BgSurface1}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.Column="0" Width="30" Height="30" CornerRadius="6"
+                                                Background="{StaticResource BgSurface2}" Margin="0,0,12,0"
+                                                VerticalAlignment="Top">
+                                            <TextBlock Text="⬡" FontSize="14" Foreground="{StaticResource AccentTeal}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                                            <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource FgPrimary}"/>
+                                            <TextBlock Text="{Binding BadgeText}" FontSize="11" FontWeight="SemiBold" Margin="0,2,0,0">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{StaticResource FgMuted}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding State}" Value="Blocked">
+                                                                <Setter Property="Foreground" Value="{StaticResource AccentGreen}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Partial">
+                                                                <Setter Property="Foreground" Value="{StaticResource AccentYellow}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Free">
+                                                                <Setter Property="Foreground" Value="{StaticResource FgSecondary}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Details}" Style="{StaticResource CaptionText}"
+                                                       TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="0,2,0,0"/>
+                                            <TextBlock Text="{Binding ExePath}" FontSize="10"
+                                                       FontFamily="{StaticResource MonoFont}"
+                                                       Foreground="{StaticResource FgMuted}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="{Binding LockButtonText}" Style="{StaticResource SecondaryButton}"
+                                                    FontSize="11" Padding="12,6" Margin="0,0,6,0"
+                                                    IsEnabled="{Binding CanInteract}"
+                                                    ToolTip="{loc:Tr Card_Lock_Tip}"
+                                                    Click="BtnLock_Click" Tag="{Binding}"/>
+                                            <Button Content="▶" Style="{StaticResource IconButton}"
+                                                    ToolTip="{loc:Tr Card_Launch_Tip}"
+                                                    Click="BtnQuickLaunch_Click" Tag="{Binding}"/>
+                                            <Button Content="✎" Style="{StaticResource IconButton}"
+                                                    ToolTip="{loc:Tr Card_Edit_Tip}"
+                                                    Click="BtnEditProfile_Click" Tag="{Binding}"/>
+                                            <Button Content="🔗" Style="{StaticResource IconButton}"
+                                                    ToolTip="{loc:Tr Card_Shortcut_Tip}"
+                                                    Click="BtnShortcut_Click" Tag="{Binding}"/>
+                                            <Button Content="✕" Style="{StaticResource IconButton}"
+                                                    Foreground="{StaticResource AccentRed}"
+                                                    ToolTip="{loc:Tr Card_Delete_Tip}"
+                                                    IsEnabled="{Binding CanInteract}"
+                                                    Click="BtnDeleteProfile_Click" Tag="{Binding}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- Add an application -->
+            <ScrollViewer x:Name="PanelAdd" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                <Border Background="{StaticResource BgMantle}" CornerRadius="12" Padding="22,18">
+                    <StackPanel>
+
+                        <!-- Step 1: application -->
+                        <TextBlock Text="{loc:Tr Step1_Title}" Style="{StaticResource SectionTitle}"/>
+                        <Border x:Name="DropZone"
+                                Background="{StaticResource BgBase}" CornerRadius="12" Padding="18,14"
+                                BorderThickness="2" BorderBrush="{StaticResource BgSurface0}"
+                                Cursor="Hand" MouseLeftButtonUp="DropZone_Click">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="📂" FontSize="26" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="TxtDropLabel"
+                                               Text="{loc:Tr Drop_Label}"
+                                               FontSize="13" Foreground="{StaticResource FgSecondary}"/>
+                                    <TextBlock x:Name="TxtDropPath" Text=""
+                                               FontSize="11" FontFamily="{StaticResource MonoFont}"
+                                               Foreground="{StaticResource AccentBlue}"
+                                               Margin="0,4,0,0" TextTrimming="CharacterEllipsis"
+                                               Visibility="Collapsed"/>
+                                    <TextBlock x:Name="TxtExtra" Style="{StaticResource CaptionText}" Margin="0,4,0,0"
+                                               Foreground="{StaticResource AccentTeal}" Visibility="Collapsed"/>
+                                </StackPanel>
+                                <Button Grid.Column="2" Content="{loc:Tr Browse}" Style="{StaticResource SecondaryButton}"
+                                        VerticalAlignment="Center" Margin="12,0,0,0" Click="BtnBrowse_Click"/>
+                            </Grid>
+                        </Border>
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0"
+                                   Text="{loc:Tr Step1_Help}"/>
+
+                        <!-- Step 2: block level -->
+                        <TextBlock Text="{loc:Tr Step2_Title}" Style="{StaticResource SectionTitle}" Margin="0,24,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <RadioButton x:Name="RbBlockAll" Grid.Row="0" Grid.Column="0" GroupName="Mode"
+                                         Content="{loc:Tr Level_All}" Style="{StaticResource ChipRadio}"
+                                         IsChecked="True" HorizontalAlignment="Left" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource CaptionText}" VerticalAlignment="Center" Margin="0,0,0,8"
+                                       Text="{loc:Tr Level_All_Text}"/>
+                            <RadioButton x:Name="RbAllowLan" Grid.Row="1" Grid.Column="0" GroupName="Mode"
+                                         Content="{loc:Tr Level_Internet}" Style="{StaticResource ChipRadio}"
+                                         HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource CaptionText}" VerticalAlignment="Center"
+                                       Text="{loc:Tr Level_Internet_Text}"/>
+                        </Grid>
+
+                        <CheckBox x:Name="ChkInbound" Content="{loc:Tr Inbound}" IsChecked="True"
+                                  Style="{StaticResource DarkCheckBox}" Margin="0,16,0,0"/>
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="24,3,0,0"
+                                   Text="{loc:Tr Inbound_Text}"/>
+
+                        <!-- Step 3: name and options -->
+                        <TextBlock Text="{loc:Tr Step3_Title}" Style="{StaticResource SectionTitle}" Margin="0,24,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{loc:Tr Name_Label}" Style="{StaticResource CaptionText}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtProfileName" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
+                                         ToolTip="{loc:Tr Name_Tip}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{loc:Tr Args_Label}" Style="{StaticResource CaptionText}" Margin="0,0,0,4"/>
+                                <TextBox x:Name="TxtArgs" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
+                                         ToolTip="{loc:Tr Args_Tip}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,16,0,6" FontWeight="SemiBold"
+                                   Text="{loc:Tr Once_Settings}"/>
+                        <CheckBox x:Name="ChkNormalUser" Content="{loc:Tr NormalUser}" IsChecked="True"
+                                  Style="{StaticResource DarkCheckBox}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="24,2,0,8"
+                                   Text="{loc:Tr NormalUser_Text}"/>
+                        <CheckBox x:Name="ChkChildren" Content="{loc:Tr Children}" IsChecked="True"
+                                  Style="{StaticResource DarkCheckBox}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="24,2,0,8"
+                                   Text="{loc:Tr Children_Text}"/>
+                        <CheckBox x:Name="ChkEnvBlock" Content="{loc:Tr Proxy}" IsChecked="True"
+                                  Style="{StaticResource DarkCheckBox}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="24,2,0,0"
+                                   Text="{loc:Tr Proxy_Text}"/>
+
+                        <!-- Step 4: actions -->
+                        <TextBlock Text="{loc:Tr Step4_Title}" Style="{StaticResource SectionTitle}" Margin="0,26,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="270"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Button x:Name="BtnBlock" Grid.Row="0" Grid.Column="0" Content="{loc:Tr Btn_Block}"
+                                    Style="{StaticResource PrimaryButton}" IsEnabled="False" Click="BtnBlock_Click"
+                                    HorizontalAlignment="Left" MinWidth="250"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource CaptionText}" VerticalAlignment="Center"
+                                       Text="{loc:Tr Btn_Block_Text}"/>
+
+                            <Button x:Name="BtnLaunch" Grid.Row="1" Grid.Column="0" Content="{loc:Tr Btn_Launch}"
+                                    Style="{StaticResource SecondaryButton}" IsEnabled="False" Click="BtnLaunch_Click"
+                                    HorizontalAlignment="Left" MinWidth="250" Margin="0,12,0,0" Padding="14,10"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource CaptionText}" VerticalAlignment="Center" Margin="0,12,0,0"
+                                       Text="{loc:Tr Btn_Launch_Text}"/>
+
+                            <Button x:Name="BtnSave" Grid.Row="2" Grid.Column="0" Content="{loc:Tr Btn_Save}"
+                                    Style="{StaticResource SecondaryButton}" IsEnabled="False" Click="BtnSave_Click"
+                                    HorizontalAlignment="Left" MinWidth="250" Margin="0,12,0,0" Padding="14,10"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource CaptionText}" VerticalAlignment="Center" Margin="0,12,0,0"
+                                       Text="{loc:Tr Btn_Save_Text}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+
+            <!-- Running -->
+            <Border x:Name="PanelRunning" Background="{StaticResource BgMantle}" CornerRadius="12" Padding="16"
+                    Visibility="Collapsed">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="4,0,4,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{loc:Tr Running_Title}" FontSize="10" FontWeight="Bold"
+                                       Foreground="{StaticResource FgMuted}"/>
+                            <TextBlock x:Name="TxtRunningCount" Text="0" FontSize="10"
+                                       Foreground="{StaticResource FgMuted}" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <Button x:Name="BtnStopAll" Content="{loc:Tr Running_StopAll}" HorizontalAlignment="Right"
+                                Style="{StaticResource DangerButton}" FontSize="11" Padding="10,4"
+                                IsEnabled="False" Click="BtnStopAll_Click"/>
+                    </Grid>
+
+                    <TextBlock x:Name="TxtEmptyRunning" DockPanel.Dock="Top"
+                               Text="{loc:Tr Running_Empty}"
+                               FontSize="12" Foreground="{StaticResource FgMuted}"
+                               HorizontalAlignment="Center" Margin="0,24"/>
+
+                    <ListBox x:Name="LstRunning" Style="{StaticResource CardListBox}" Visibility="Collapsed">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource BgSurface0}" CornerRadius="8" Padding="12,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Ellipse Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0" VerticalAlignment="Center">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="{StaticResource AccentYellow}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding State}" Value="Isolated">
+                                                            <Setter Property="Fill" Value="{StaticResource AccentGreen}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding State}" Value="Failed">
+                                                            <Setter Property="Fill" Value="{StaticResource AccentRed}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding State}" Value="Stopped">
+                                                            <Setter Property="Fill" Value="{StaticResource FgMuted}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,8,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource FgPrimary}"/>
+                                                <TextBlock Text="{Binding StateText}" FontSize="10" Margin="8,2,0,0"
+                                                           Foreground="{StaticResource AccentTeal}"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Detail}" FontSize="10"
+                                                       Foreground="{StaticResource FgSecondary}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding ExePath}" FontSize="10"
+                                                       FontFamily="{StaticResource MonoFont}"
+                                                       Foreground="{StaticResource FgMuted}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="2" Text="{Binding Elapsed}" FontSize="12"
+                                                   FontFamily="{StaticResource MonoFont}"
+                                                   Foreground="{StaticResource FgSecondary}"
+                                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                                        <Button Grid.Column="3" Content="■" Style="{StaticResource IconButton}"
+                                                Foreground="{StaticResource AccentRed}"
+                                                ToolTip="{loc:Tr Running_Stop_Tip}"
+                                                IsEnabled="{Binding CanStop}"
+                                                Click="BtnStopApp_Click" Tag="{Binding}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- Log -->
+            <Border x:Name="PanelLog" Background="{StaticResource BgMantle}" CornerRadius="12" Padding="16"
+                    Visibility="Collapsed">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="4,0,4,12">
+                        <TextBlock Text="{loc:Tr Log_Title}" FontSize="10" FontWeight="Bold"
+                                   Foreground="{StaticResource FgMuted}" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="{loc:Tr Log_Open}" Style="{StaticResource SecondaryButton}"
+                                    FontSize="11" Padding="10,4" Click="BtnOpenLog_Click"/>
+                            <Button Content="{loc:Tr Log_Clear}" Style="{StaticResource SecondaryButton}"
+                                    FontSize="11" Padding="10,4" Margin="6,0,0,0" Click="BtnClearLog_Click"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <ListBox x:Name="LstLog" Style="{StaticResource CardListBox}"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Margin" Value="0,0,0,2"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="62"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding TimeText}" FontSize="11"
+                                               FontFamily="{StaticResource MonoFont}"
+                                               Foreground="{StaticResource FgMuted}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Message}" FontSize="11"
+                                               FontFamily="{StaticResource MonoFont}" TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{StaticResource FgSecondary}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Level}" Value="Ok">
+                                                        <Setter Property="Foreground" Value="{StaticResource AccentGreen}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Level}" Value="Warn">
+                                                        <Setter Property="Foreground" Value="{StaticResource AccentYellow}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Level}" Value="Error">
+                                                        <Setter Property="Foreground" Value="{StaticResource AccentRed}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- Help -->
+            <ScrollViewer x:Name="PanelHelp" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                <Border Background="{StaticResource BgMantle}" CornerRadius="12" Padding="24,20">
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Help_Purpose_Title}" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" FontSize="12" LineHeight="18"
+                                   Text="{loc:Tr Help_Purpose}"/>
+
+                        <TextBlock Text="{loc:Tr Help_Ways_Title}" Style="{StaticResource SectionTitle}" Margin="0,22,0,8"/>
+                        <TextBlock Style="{StaticResource CaptionText}" FontSize="12" LineHeight="18"
+                                   Text="{loc:Tr Help_Block}"/>
+                        <TextBlock Style="{StaticResource CaptionText}" FontSize="12" LineHeight="18" Margin="0,10,0,0"
+                                   Text="{loc:Tr Help_Once}"/>
+
+                        <TextBlock Text="{loc:Tr Help_Undo_Title}" Style="{StaticResource SectionTitle}" Margin="0,22,0,8"/>
+                        <TextBlock Style="{StaticResource CaptionText}" FontSize="12" LineHeight="18"
+                                   Text="{loc:Tr Help_Undo}"/>
+
+                        <TextBlock Text="{loc:Tr Help_Online_Title}" Style="{StaticResource SectionTitle}" Margin="0,22,0,8"/>
+                        <TextBlock Style="{StaticResource CaptionText}" FontSize="12" LineHeight="18"
+                                   Text="{loc:Tr Help_Online}"/>
+
+                        <TextBlock Text="{loc:Tr Help_Limits_Title}" Style="{StaticResource SectionTitle}" Margin="0,22,0,8"/>
+                        <TextBlock Style="{StaticResource CaptionText}" FontSize="12" LineHeight="18"
+                                   Text="{loc:Tr Help_Limits}"/>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Status bar -->
+        <Border Grid.Row="3" Background="{StaticResource BgCrust}" Padding="24,10" Margin="0,14,0,0">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse x:Name="StatusDot" Width="8" Height="8"
+                             Fill="{StaticResource FgMuted}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtStatus" Text="{loc:Tr Status_Ready}" FontSize="11"
+                               FontFamily="{StaticResource MonoFont}"
+                               Foreground="{StaticResource FgMuted}" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock x:Name="TxtRunningSummary" Text="" FontSize="11"
+                           HorizontalAlignment="Right" VerticalAlignment="Center"
+                           Foreground="{StaticResource FgMuted}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
