@@ -200,10 +200,10 @@
 
                         <!-- Step 1: application -->
                         <TextBlock Text="{loc:Tr Step1_Title}" Style="{StaticResource SectionTitle}"/>
-                        <Border x:Name="DropZone"
+                        <Border x:Name="PickZone"
                                 Background="{StaticResource BgBase}" CornerRadius="12" Padding="18,14"
                                 BorderThickness="2" BorderBrush="{StaticResource BgSurface0}"
-                                Cursor="Hand" MouseLeftButtonUp="DropZone_Click">
+                                Cursor="Hand" MouseLeftButtonUp="PickZone_Click">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -212,10 +212,10 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="📂" FontSize="26" VerticalAlignment="Center" Margin="0,0,14,0"/>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock x:Name="TxtDropLabel"
-                                               Text="{loc:Tr Drop_Label}"
+                                    <TextBlock x:Name="TxtPickLabel"
+                                               Text="{loc:Tr Pick_Label}"
                                                FontSize="13" Foreground="{StaticResource FgSecondary}"/>
-                                    <TextBlock x:Name="TxtDropPath" Text=""
+                                    <TextBlock x:Name="TxtPickPath" Text=""
                                                FontSize="11" FontFamily="{StaticResource MonoFont}"
                                                Foreground="{StaticResource AccentBlue}"
                                                Margin="0,4,0,0" TextTrimming="CharacterEllipsis"
@@ -268,12 +268,12 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{loc:Tr Name_Label}" Style="{StaticResource CaptionText}" Margin="0,0,0,4"/>
-                                <TextBox x:Name="TxtProfileName" AllowDrop="False" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
+                                <TextBox x:Name="TxtProfileName" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
                                          ToolTip="{loc:Tr Name_Tip}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{loc:Tr Args_Label}" Style="{StaticResource CaptionText}" Margin="0,0,0,4"/>
-                                <TextBox x:Name="TxtArgs" AllowDrop="False" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
+                                <TextBox x:Name="TxtArgs" Style="{StaticResource DarkTextBox}" FontSize="12" Padding="10,7"
                                          ToolTip="{loc:Tr Args_Tip}"/>
                             </StackPanel>
                         </Grid>

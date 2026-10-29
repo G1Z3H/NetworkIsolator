@@ -39,13 +39,6 @@ public partial class MainWindow : Window
         Loaded += OnLoaded;
     }
 
-    protected override void OnSourceInitialized(EventArgs e)
-    {
-        base.OnSourceInitialized(e);
-
-        ShellFileDrop.Enable(this, OnFilesDropped);
-    }
-
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
         UpdatePrivilegeBadge();
@@ -109,7 +102,7 @@ public partial class MainWindow : Window
         foreach (AppEntry entry in _apps) entry.RefreshTexts();
         foreach (IsolatedApp app in _running) app.Refresh();
 
-        if (string.IsNullOrEmpty(_selectedExePath)) TxtDropLabel.Text = Loc.T("Drop_Label");
+        if (string.IsNullOrEmpty(_selectedExePath)) TxtPickLabel.Text = Loc.T("Pick_Label");
         if (_extraPaths.Count > 0) SetExtraPaths(_extraPaths);
         SetStatus(Loc.T("Status_Ready"), true);
     }
@@ -161,20 +154,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnFilesDropped(string[] files)
-    {
-        string? exe = files.FirstOrDefault(f => f.EndsWith(".exe", StringComparison.OrdinalIgnoreCase));
-        if (exe is null)
-        {
-            SetStatus(Loc.T("Status_DropExe"), false);
-            return;
-        }
-
-        SetSelectedExe(exe);
-        RbNavAdd.IsChecked = true;
-    }
-
-    private void DropZone_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => BrowseForExe();
+    private void PickZone_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => BrowseForExe();
 
     private void BtnBrowse_Click(object sender, RoutedEventArgs e) => BrowseForExe();
 
@@ -193,9 +173,9 @@ public partial class MainWindow : Window
     {
         _selectedExePath = path;
         SetExtraPaths([]);
-        TxtDropPath.Text = path;
-        TxtDropPath.Visibility = Visibility.Visible;
-        TxtDropLabel.Text = Path.GetFileName(path);
+        TxtPickPath.Text = path;
+        TxtPickPath.Visibility = Visibility.Visible;
+        TxtPickLabel.Text = Path.GetFileName(path);
         TxtProfileName.Text = "";
         BtnBlock.IsEnabled = true;
         BtnLaunch.IsEnabled = true;

@@ -10,7 +10,7 @@ namespace NetworkIsolator.Core;
 /// <summary>
 /// Starts the target application. Two strategies, tried in order:
 ///  1) Desktop token (like a double-click in Explorer): the app does NOT inherit the tool's admin rights.
-///     Essential for Steam/DRM, mapped network drives, drag and drop, etc.
+///     Essential for Steam/DRM, mapped network drives, etc.
 ///     The process starts SUSPENDED: it is put in the job object before its first instruction.
 ///  2) Plain Process.Start if strategy 1 fails.
 /// </summary>
